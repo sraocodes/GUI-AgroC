@@ -1,0 +1,11 @@
+soilco2 plant input
+2 version number
+CO2_fluxes   respiration   maint_growth   waterstress   rootExudation   rootDeath   harvestresidues   farquhar
+     F     F     F     F     F     F     F     F
+T daily timestep (T = daily, F = hourly)
+2014 08 01  start date of the simulation ( yyyy mm dd )
+1  no of plant types
+2  unit in SOILCO2 1=mm 2=cm 3=dm 4=m 5=km
+1  interception 1=Bormann, 2=Hoyningen-Huene
+53.22245  latitude of the site                                                 (LATITUDE)
+# plant type 1 **************************************************
