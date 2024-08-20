@@ -160,4 +160,3 @@ T daily timestep (T = daily, F = hourly)
 # (Tab.17) [for all crops if N module switched on] #    DVS against N content crowns XNCCRN [kg N kg DM-1] 
 0.0   0.0
 2.0   0.0
-# plant type 1 
