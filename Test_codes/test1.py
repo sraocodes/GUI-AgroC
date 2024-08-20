@@ -1,6 +1,20 @@
 #############################################################################################################
+
+"""
+Author: Sathyanarayan Rao
+
+Description:
+This Python script uses PyQt5 to create a GUI for editing the 'plants.in' configuration file
+used in the AgroC simulation software. The GUI supports editing general settings, plant parameters,
+and tabular data specific to agricultural modeling and simulation processes.
+
+The application allows users to:
+- Load and modify existing configuration data.
+- Save changes to a new configuration file.
+- Dynamically add and remove rows in data tables.
+- Reset to default settings.
+"""
 ############# IMPORT all necessary Libraries ################################################################
-#############################################################################################################
 
 import sys
 import os
@@ -13,10 +27,11 @@ from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem
 
 
 ###############################################################################################################
-#### AgroCInputEditor, derived from QMainWindow. It initializes the main window and its components ############
-###############################################################################################################
+
 
 class AgroCInputEditor(QMainWindow):
+# Main class for the AgroC Plants.in Input Editor
+# Initialize the application, set main window properties, and load default values
 
     def __init__(self):
         super().__init__()
@@ -42,10 +57,10 @@ class AgroCInputEditor(QMainWindow):
 
 
     ##########################################
-    # The create_form method sets up a scrollable form for input fields. Each field corresponds to a parameter in the plants.in file. 
-    ##########################################
+    # Create the form layout for user input
 
     def create_form(self):
+        # Scroll area to accommodate all input fields dynamically
         scroll = QScrollArea()
         form_widget = QWidget()
         self.form_layout = QFormLayout(form_widget)
@@ -235,9 +250,9 @@ class AgroCInputEditor(QMainWindow):
 
     ##########################################
     # The create_buttons method adds buttons for resetting to defaults and saving changes. 
-    ##########################################
 
     def create_buttons(self):
+        # Add layout and buttons for save and reset actions
         button_layout = QHBoxLayout()
         reset_button = QPushButton("Reset to Default")
         reset_button.clicked.connect(self.reset_to_default)
@@ -358,7 +373,10 @@ class AgroCInputEditor(QMainWindow):
             traceback.print_exc()
 
     ##########################################
+    # Setup tabular data UI, including list and display of data tables
+
     def create_tabular_data(self):
+        # Main widget and layout for tabular data section
         tabular_data_widget = QWidget()
         tabular_layout = QHBoxLayout(tabular_data_widget)
 
@@ -424,8 +442,9 @@ class AgroCInputEditor(QMainWindow):
 
         return tabular_data_widget
 
+    # Show the selected data table from the list when clicked
     def show_selected_table(self, item):
-        # Clear the current table display
+        # Clear the display and setup the selected table along with + and - buttons
         for i in reversed(range(self.table_display_layout.count())):
             widget = self.table_display_layout.itemAt(i).widget()
             if widget is not None:
@@ -434,8 +453,49 @@ class AgroCInputEditor(QMainWindow):
         # Get the index of the selected table
         table_index = self.table_list.row(item)
 
+        # Ensure the buttons exist; if not, create them
+        if not hasattr(self, 'add_button'):
+            self.add_button = QPushButton("+")
+            self.remove_button = QPushButton("-")
+        
+        # Disconnect existing connections if any (important to avoid multiple connections leading to multiple actions)
+        try:
+            self.add_button.clicked.disconnect()
+        except TypeError:
+            pass  # no connections
+        try:
+            self.remove_button.clicked.disconnect()
+        except TypeError:
+            pass  # no connections
+        
+        # Connect the buttons with the new table index
+        self.add_button.clicked.connect(lambda: self.add_row_to_table(table_index))
+        self.remove_button.clicked.connect(lambda: self.remove_row_from_table(table_index))
+
+        # Add buttons to layout
+        button_layout = QHBoxLayout()
+        button_layout.addWidget(self.add_button)
+        button_layout.addWidget(self.remove_button)
+        self.table_display_layout.addLayout(button_layout)
+
         # Add the selected table to the display
         self.table_display_layout.addWidget(self.tables[table_index])
+
+
+    # Add a new row to the currently displayed table
+    def add_row_to_table(self, table_index):
+        table = self.tables[table_index]
+        row_count = table.rowCount()
+        table.insertRow(row_count)
+        table.setItem(row_count, 0, QTableWidgetItem("0"))  # Initialize new row with default values
+        table.setItem(row_count, 1, QTableWidgetItem("0"))
+
+    # Remove the last row from the currently displayed table
+    def remove_row_from_table(self, table_index):
+        table = self.tables[table_index]
+        if table.rowCount() > 0:
+            table.removeRow(table.rowCount() - 1)  # Remove the last row
+
 
 
     def update_table_rows(self):
@@ -499,7 +559,9 @@ class AgroCInputEditor(QMainWindow):
 
             file.write("# plant type 1 **************************************************\n")
             file.write(f"{self.plant_type_name.text()}\n")
-            file.write(f"{self.table_rows.text()}   number of rows in the 17 tables\n")
+            # Dynamically write the number of rows for each table
+            table_rows = [str(table.rowCount()) for table in self.tables]
+            file.write(f"{' '.join(table_rows)}   number of rows in the 17 tables\n")
             file.write(f"{self.planting_dates.text()}  no of dates for planting/emergence and harvests\n")
             file.write(f"{self.num_parameters.text()} no of parameters\n")
             file.write(f"{self.kc_calculation.text()}  Kc calculation 1=dvs  2=time 3=computed from LAI                             (AKCTYPE)\n")
@@ -537,19 +599,22 @@ class AgroCInputEditor(QMainWindow):
             file.write("# emergence and harvest date(s)\n")
             file.write(f"{self.emergence_harvest_dates.text()}\n")
             # Write tabular data
-            table_rows = list(map(int, self.table_rows.text().split()))
+            # Dynamically fetch and write the number of rows for each table
+            table_rows = [str(table.rowCount()) for table in self.tables]
+            file.write(f"{' '.join(table_rows)}   number of rows in the 17 tables\n")
+            # Write tabular data for each table
             for i, table in enumerate(self.tables):
                 file.write(f"# (Tab.{i+1}) [for crop 1 2 3 5] #    {self.table_list.item(i).text().split(': ', 1)[1]}\n")
-                for row in range(min(table.rowCount(), table_rows[i])):
+                for row in range(table.rowCount()):
                     row_data = []
                     for col in range(table.columnCount()):
                         item = table.item(row, col)
                         row_data.append(item.text() if item and item.text() else "0")
                     file.write("    " + "        ".join(row_data) + "\n")
-                file.write("\n")  # Add a newline after each table   
         print(f"File saved successfully: {filename}")
 
 if __name__ == "__main__":
+    # Create the application instance, set up the main window, and start the event loop
     app = QApplication(sys.argv)
     window = AgroCInputEditor()
     window.show()
