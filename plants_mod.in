@@ -10,7 +10,7 @@ T daily timestep (T = daily, F = hourly)
 53.22245  latitude of the site                                                 (LATITUDE)
 # plant type 1 **************************************************
 1  Whinter Wheat
-4 5 11 11 8 7 1 0 5 3 2 4 3 4 4 3 3   number of rows in the 17 tables
+6 6 11 11 8 7 1 0 5 3 2 4 3 4 4 3 2   number of rows in the 17 tables
 1  no of dates for planting/emergence and harvests
 50 no of parameters
 3  Kc calculation 1=dvs  2=time 3=computed from LAI                             (AKCTYPE)
@@ -46,18 +46,21 @@ T daily timestep (T = daily, F = hourly)
 0.0       + dead leaf area for outside the season (ha/ha)                       (SLAID_OFF)
 # emergence and harvest date(s)
 2014 08 01  2014 10 30
-4 5 11 11 8 7 1 0 5 3 2 4 3 4 4 3 3   number of rows in the 17 tables
+6 6 11 11 8 7 1 0 5 3 2 4 3 4 4 3 2   number of rows in the 17 tables
 # (Tab.1) [for crop 1 2 3 5] #    Temperature sum against reduction factor of the maximal light assimilation rate
     0.0        0.05
     4.0        0.3
     30.0        0.01
     0        0
+    0        0
+    0        0.258
 # (Tab.2) [for crop 1 2 3 5] #    Effective temperature against reduction factor of the maximal light assimilation rate
     -10        0.0000
     0        0.0000
     2        0.0021
     5        0.0032
     10        0.0064
+    40        0.0447
 # (Tab.3) [for crop 1 2 3 5] #    Effective temperature against reduction factor of the development rate, if DVS < 1
     -10        0.0000
     0        0.0000
@@ -141,4 +144,3 @@ T daily timestep (T = daily, F = hourly)
 # (Tab.17) [for crop 1 2 3 5] #    DVS against N content crowns
     0.0        1.0
     2.0        0.4
-    3        0
